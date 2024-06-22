@@ -1,0 +1,39 @@
+services:
+  db:
+    restart: always
+    image: mysql:8.0
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - type: volume
+        source: mysqldata
+        target: /var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      TZ: "Asia/Tokyo"
+    ports:
+      - '3306:3306'
+  webapp:
+    build: .
+    volumes:
+      - type: bind
+        source: ./webapp
+        target: /webapp
+      - type: volume
+        source: gemdata
+        target: /usr/local/bundle
+      - type: volume
+        source: node_modules
+        target: /webapp/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+    environment:
+      MYSQL_PASSWORD: password
+      TZ: "Asia/Tokyo"
+volumes:
+  gemdata:
+  node_modules:
+  mysqldata:
